@@ -1,0 +1,538 @@
+---
+title: 'Authentication System'
+description: 'Firebase Authentication implementation and user management'
+icon: 'key'
+---
+
+## Overview
+
+Mascotas uses Firebase Authentication to provide secure, scalable user authentication with support for multiple authentication providers.
+
+<CardGroup cols={3}>
+  <Card title="Email/Password" icon="envelope" color="#FF9826">
+    Traditional email and password authentication with email verification
+  </Card>
+  <Card title="Google OAuth" icon="google" color="#FF9826">
+    One-click sign-in with Google accounts
+  </Card>
+  <Card title="Facebook OAuth" icon="facebook" color="#FF9826">
+    Social authentication through Facebook
+  </Card>
+</CardGroup>
+
+## Firebase Configuration
+
+<Steps>
+  <Step title="Initialize Firebase">
+    Configure Firebase SDK with your project credentials
+    
+    ```javascript
+    // src/config/firebase.js
+    import { initializeApp } from 'firebase/app'
+    import { getAuth } from 'firebase/auth'
+    import { getFirestore } from 'firebase/firestore'
+
+    const firebaseConfig = {
+      apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+      appId: import.meta.env.VITE_FIREBASE_APP_ID
+    }
+
+    const app = initializeApp(firebaseConfig)
+    export const auth = getAuth(app)
+    export const db = getFirestore(app)
+    ```
+  </Step>
+  
+  <Step title="Setup Auth Providers">
+    Enable authentication providers in Firebase Console under Authentication > Sign-in method
+  </Step>
+  
+  <Step title="Configure OAuth Callbacks">
+    Add authorized domains in Firebase Console for OAuth redirects
+  </Step>
+</Steps>
+
+## Authentication Methods
+
+### Email/Password Authentication
+
+<Accordion title="User Registration">
+  ```javascript
+  // src/services/auth.service.js
+  import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth'
+  import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+  import { auth, db } from '../config/firebase'
+
+  export const registerUser = async (email, password, displayName) => {
+    try {
+      // Create user account
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+      const user = userCredential.user
+
+      // Update profile with display name
+      await updateProfile(user, {
+        displayName: displayName
+      })
+
+      // Send email verification
+      await sendEmailVerification(user)
+
+      // Create user document in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        email: user.email,
+        displayName: displayName,
+        photoURL: user.photoURL || null,
+        createdAt: serverTimestamp(),
+        emailVerified: false,
+        role: 'user',
+        preferences: {
+          notifications: true,
+          emailUpdates: true
+        }
+      })
+
+      return { success: true, user }
+    } catch (error) {
+      console.error('Registration error:', error)
+      throw error
+    }
+  }
+  ```
+</Accordion>
+
+<Accordion title="User Login">
+  ```javascript
+  import { signInWithEmailAndPassword } from 'firebase/auth'
+  import { auth } from '../config/firebase'
+
+  export const loginUser = async (email, password) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      const user = userCredential.user
+
+      // Check email verification
+      if (!user.emailVerified) {
+        return {
+          success: false,
+          error: 'EMAIL_NOT_VERIFIED',
+          message: 'Por favor verifica tu correo electrónico antes de iniciar sesión.'
+        }
+      }
+
+      return { success: true, user }
+    } catch (error) {
+      console.error('Login error:', error)
+      
+      // Handle specific error codes
+      const errorMessages = {
+        'auth/user-not-found': 'No existe una cuenta con este correo electrónico.',
+        'auth/wrong-password': 'Contraseña incorrecta.',
+        'auth/too-many-requests': 'Demasiados intentos fallidos. Intenta más tarde.',
+        'auth/user-disabled': 'Esta cuenta ha sido deshabilitada.'
+      }
+
+      throw new Error(errorMessages[error.code] || 'Error al iniciar sesión.')
+    }
+  }
+  ```
+</Accordion>
+
+<Accordion title="Password Reset">
+  ```javascript
+  import { sendPasswordResetEmail } from 'firebase/auth'
+  import { auth } from '../config/firebase'
+
+  export const resetPassword = async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email, {
+        url: `${window.location.origin}/login`,
+        handleCodeInApp: false
+      })
+
+      return {
+        success: true,
+        message: 'Se ha enviado un correo para restablecer tu contraseña.'
+      }
+    } catch (error) {
+      console.error('Password reset error:', error)
+      throw error
+    }
+  }
+  ```
+</Accordion>
+
+### OAuth Authentication
+
+<Tabs>
+  <Tab title="Google Sign-In">
+    ```javascript
+    import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+    import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
+    import { auth, db } from '../config/firebase'
+
+    export const signInWithGoogle = async () => {
+      const provider = new GoogleAuthProvider()
+      provider.addScope('profile')
+      provider.addScope('email')
+
+      try {
+        const result = await signInWithPopup(auth, provider)
+        const user = result.user
+
+        // Check if user document exists
+        const userDoc = await getDoc(doc(db, 'users', user.uid))
+
+        // Create user document if it doesn't exist
+        if (!userDoc.exists()) {
+          await setDoc(doc(db, 'users', user.uid), {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            createdAt: serverTimestamp(),
+            emailVerified: user.emailVerified,
+            role: 'user',
+            authProvider: 'google',
+            preferences: {
+              notifications: true,
+              emailUpdates: true
+            }
+          })
+        }
+
+        return { success: true, user }
+      } catch (error) {
+        console.error('Google sign-in error:', error)
+        throw error
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Facebook Sign-In">
+    ```javascript
+    import { signInWithPopup, FacebookAuthProvider } from 'firebase/auth'
+    import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
+    import { auth, db } from '../config/firebase'
+
+    export const signInWithFacebook = async () => {
+      const provider = new FacebookAuthProvider()
+      provider.addScope('email')
+      provider.addScope('public_profile')
+
+      try {
+        const result = await signInWithPopup(auth, provider)
+        const user = result.user
+
+        // Get Facebook access token
+        const credential = FacebookAuthProvider.credentialFromResult(result)
+        const accessToken = credential.accessToken
+
+        // Check if user document exists
+        const userDoc = await getDoc(doc(db, 'users', user.uid))
+
+        if (!userDoc.exists()) {
+          await setDoc(doc(db, 'users', user.uid), {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            createdAt: serverTimestamp(),
+            emailVerified: user.emailVerified,
+            role: 'user',
+            authProvider: 'facebook',
+            preferences: {
+              notifications: true,
+              emailUpdates: true
+            }
+          })
+        }
+
+        return { success: true, user }
+      } catch (error) {
+        console.error('Facebook sign-in error:', error)
+        throw error
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Auth Context Provider
+
+<CodeGroup>
+  ```javascript AuthContext.jsx
+  import { createContext, useContext, useEffect, useState } from 'react'
+  import { onAuthStateChanged } from 'firebase/auth'
+  import { doc, getDoc } from 'firebase/firestore'
+  import { auth, db } from '../config/firebase'
+
+  const AuthContext = createContext({})
+
+  export const useAuth = () => useContext(AuthContext)
+
+  export const AuthProvider = ({ children }) => {
+    const [currentUser, setCurrentUser] = useState(null)
+    const [userProfile, setUserProfile] = useState(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        setCurrentUser(user)
+
+        if (user) {
+          // Fetch user profile from Firestore
+          const userDoc = await getDoc(doc(db, 'users', user.uid))
+          if (userDoc.exists()) {
+            setUserProfile(userDoc.data())
+          }
+        } else {
+          setUserProfile(null)
+        }
+
+        setLoading(false)
+      })
+
+      return unsubscribe
+    }, [])
+
+    const value = {
+      currentUser,
+      userProfile,
+      loading
+    }
+
+    return (
+      <AuthContext.Provider value={value}>
+        {!loading && children}
+      </AuthContext.Provider>
+    )
+  }
+  ```
+
+  ```javascript ProtectedRoute.jsx
+  import { Navigate } from 'react-router-dom'
+  import { useAuth } from '../contexts/AuthContext'
+
+  export const ProtectedRoute = ({ children }) => {
+    const { currentUser, loading } = useAuth()
+
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF9826]"></div>
+        </div>
+      )
+    }
+
+    return currentUser ? children : <Navigate to="/login" />
+  }
+  ```
+</CodeGroup>
+
+## Session Management
+
+<Note>
+  Firebase automatically handles session persistence and token refresh. Sessions are stored in localStorage by default and persist across browser sessions.
+</Note>
+
+<Accordion title="Custom Token Management">
+  ```javascript
+  import { onIdTokenChanged } from 'firebase/auth'
+  import { auth } from '../config/firebase'
+
+  // Listen for token changes
+  export const setupTokenRefresh = () => {
+    return onIdTokenChanged(auth, async (user) => {
+      if (user) {
+        // Get fresh token
+        const token = await user.getIdToken()
+        
+        // Store token for API requests
+        localStorage.setItem('authToken', token)
+        
+        // Set up automatic refresh before expiration
+        const tokenResult = await user.getIdTokenResult()
+        const expirationTime = new Date(tokenResult.expirationTime).getTime()
+        const currentTime = new Date().getTime()
+        const timeUntilRefresh = expirationTime - currentTime - 5 * 60 * 1000 // 5 min before expiry
+        
+        setTimeout(async () => {
+          await user.getIdToken(true) // Force refresh
+        }, timeUntilRefresh)
+      } else {
+        localStorage.removeItem('authToken')
+      }
+    })
+  }
+  ```
+</Accordion>
+
+## User Roles and Permissions
+
+<CardGroup cols={2}>
+  <Card title="User Role" icon="user">
+    Standard users can create and manage their own pet reports
+  </Card>
+  <Card title="Admin Role" icon="user-shield">
+    Administrators can moderate content and manage all reports
+  </Card>
+</CardGroup>
+
+```javascript
+// src/utils/permissions.js
+export const ROLES = {
+  USER: 'user',
+  ADMIN: 'admin'
+}
+
+export const hasPermission = (userProfile, requiredRole) => {
+  if (!userProfile) return false
+  
+  const roleHierarchy = {
+    user: 0,
+    admin: 1
+  }
+  
+  return roleHierarchy[userProfile.role] >= roleHierarchy[requiredRole]
+}
+
+export const canEditReport = (userProfile, report) => {
+  if (!userProfile || !report) return false
+  
+  // Users can edit their own reports, admins can edit any report
+  return report.userId === userProfile.uid || userProfile.role === ROLES.ADMIN
+}
+```
+
+## Security Best Practices
+
+<Warning>
+  Never store sensitive Firebase credentials in client-side code. Use environment variables and restrict API keys by domain in Firebase Console.
+</Warning>
+
+<Steps>
+  <Step title="Enable App Check">
+    Protect your Firebase resources from abuse by enabling App Check
+    
+    ```javascript
+    import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
+    import { app } from './firebase'
+
+    if (import.meta.env.PROD) {
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
+        isTokenAutoRefreshEnabled: true
+      })
+    }
+    ```
+  </Step>
+  
+  <Step title="Implement Rate Limiting">
+    Use Firebase Security Rules to limit authentication attempts
+  </Step>
+  
+  <Step title="Secure Custom Claims">
+    Use Cloud Functions to set custom claims for user roles
+    
+    ```javascript
+    // Cloud Function to set admin role
+    exports.setAdminRole = functions.https.onCall(async (data, context) => {
+      // Verify caller is admin
+      if (context.auth.token.admin !== true) {
+        throw new functions.https.HttpsError('permission-denied', 'Only admins can set roles')
+      }
+
+      await admin.auth().setCustomUserClaims(data.uid, { admin: true })
+      return { success: true }
+    })
+    ```
+  </Step>
+</Steps>
+
+## Error Handling
+
+<Accordion title="Common Auth Errors">
+  | Error Code | Description | User Message |
+  |------------|-------------|-------------|
+  | `auth/email-already-in-use` | Email is already registered | Ya existe una cuenta con este correo |
+  | `auth/weak-password` | Password is too weak | La contraseña debe tener al menos 6 caracteres |
+  | `auth/invalid-email` | Email format is invalid | Formato de correo electrónico inválido |
+  | `auth/user-not-found` | No user with this email | No se encontró una cuenta con este correo |
+  | `auth/wrong-password` | Incorrect password | Contraseña incorrecta |
+  | `auth/too-many-requests` | Too many failed attempts | Demasiados intentos. Intenta más tarde |
+  | `auth/network-request-failed` | Network error | Error de conexión. Verifica tu internet |
+</Accordion>
+
+<Tip>
+  Implement a custom error handler to provide user-friendly error messages in Spanish for the Mar del Plata user base.
+</Tip>
+
+## Testing Authentication
+
+<Tabs>
+  <Tab title="Unit Tests">
+    ```javascript
+    import { describe, it, expect, vi } from 'vitest'
+    import { registerUser, loginUser } from '../services/auth.service'
+
+    vi.mock('../config/firebase', () => ({
+      auth: {},
+      db: {}
+    }))
+
+    describe('Auth Service', () => {
+      it('should register a new user', async () => {
+        const result = await registerUser('test@example.com', 'password123', 'Test User')
+        expect(result.success).toBe(true)
+      })
+
+      it('should login existing user', async () => {
+        const result = await loginUser('test@example.com', 'password123')
+        expect(result.success).toBe(true)
+      })
+    })
+    ```
+  </Tab>
+  
+  <Tab title="Integration Tests">
+    ```javascript
+    import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+    import { AuthProvider } from '../contexts/AuthContext'
+    import LoginPage from '../pages/Login'
+
+    describe('Login Flow', () => {
+      it('should login user successfully', async () => {
+        render(
+          <AuthProvider>
+            <LoginPage />
+          </AuthProvider>
+        )
+
+        fireEvent.change(screen.getByLabelText(/email/i), {
+          target: { value: 'test@example.com' }
+        })
+        
+        fireEvent.change(screen.getByLabelText(/password/i), {
+          target: { value: 'password123' }
+        })
+
+        fireEvent.click(screen.getByRole('button', { name: /login/i }))
+
+        await waitFor(() => {
+          expect(screen.getByText(/welcome/i)).toBeInTheDocument()
+        })
+      })
+    })
+    ```
+  </Tab>
+</Tabs>
+
+<Info>
+  Use Firebase Authentication Emulator for local testing without affecting production data.
+</Info>

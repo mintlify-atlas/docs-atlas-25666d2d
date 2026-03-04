@@ -1,0 +1,802 @@
+---
+title: 'Database Structure'
+description: 'Firestore data models, schemas, and query patterns'
+icon: 'database'
+---
+
+## Overview
+
+Mascotas uses Cloud Firestore as its primary database, providing real-time synchronization, offline support, and scalable NoSQL storage.
+
+<CardGroup cols={2}>
+  <Card title="Collections" icon="folder" color="#FF9826">
+    Organized data structure with pets, users, reports, and messages collections
+  </Card>
+  <Card title="Real-time" icon="bolt" color="#FF9826">
+    Live updates when data changes without polling
+  </Card>
+  <Card title="Offline Support" icon="wifi" color="#FF9826">
+    Local persistence for offline-first experience
+  </Card>
+  <Card title="Security Rules" icon="shield-halved" color="#FF9826">
+    Granular access control at document level
+  </Card>
+</CardGroup>
+
+## Database Schema
+
+```
+firestore/
+├── users/
+│   └── {userId}
+│       ├── uid: string
+│       ├── email: string
+│       ├── displayName: string
+│       ├── photoURL: string
+│       ├── createdAt: timestamp
+│       ├── role: string
+│       └── preferences: object
+│
+├── pets/
+│   └── {petId}
+│       ├── userId: string
+│       ├── type: string (lost|found|adoption)
+│       ├── petType: string (dog|cat|other)
+│       ├── name: string
+│       ├── description: string
+│       ├── photos: array
+│       ├── location: geopoint
+│       ├── address: string
+│       ├── contactPhone: string
+│       ├── contactWhatsApp: string
+│       ├── status: string (active|resolved|closed)
+│       ├── createdAt: timestamp
+│       └── updatedAt: timestamp
+│
+├── messages/
+│   └── {messageId}
+│       ├── petId: string
+│       ├── senderId: string
+│       ├── receiverId: string
+│       ├── message: string
+│       ├── read: boolean
+│       └── createdAt: timestamp
+│
+└── reports/
+    └── {reportId}
+        ├── petId: string
+        ├── reportedBy: string
+        ├── reason: string
+        ├── description: string
+        ├── status: string (pending|reviewed|resolved)
+        └── createdAt: timestamp
+```
+
+## Collection Schemas
+
+<Accordion title="Users Collection">
+  ### Schema Definition
+  
+  ```typescript
+  interface User {
+    uid: string                    // Firebase Auth UID
+    email: string                  // User email address
+    displayName: string            // User display name
+    photoURL: string | null        // Profile photo URL
+    createdAt: Timestamp           // Account creation date
+    emailVerified: boolean         // Email verification status
+    role: 'user' | 'admin'        // User role
+    authProvider: 'email' | 'google' | 'facebook'
+    preferences: {
+      notifications: boolean       // Push notification preference
+      emailUpdates: boolean        // Email updates preference
+      language: string             // User language (es by default)
+    }
+    stats?: {
+      reportsCreated: number       // Total reports created
+      petsReunited: number         // Successful reunions
+    }
+  }
+  ```
+
+  ### Example Document
+  
+  ```javascript
+  {
+    uid: "abc123xyz",
+    email: "maria@example.com",
+    displayName: "María González",
+    photoURL: "https://storage.googleapis.com/...",
+    createdAt: Timestamp.now(),
+    emailVerified: true,
+    role: "user",
+    authProvider: "google",
+    preferences: {
+      notifications: true,
+      emailUpdates: true,
+      language: "es"
+    },
+    stats: {
+      reportsCreated: 3,
+      petsReunited: 1
+    }
+  }
+  ```
+
+  ### Indexes
+  - `email` (ascending)
+  - `createdAt` (descending)
+  - `role` (ascending)
+</Accordion>
+
+<Accordion title="Pets Collection">
+  ### Schema Definition
+  
+  ```typescript
+  interface Pet {
+    id: string                     // Auto-generated document ID
+    userId: string                 // Owner/reporter user ID
+    type: 'lost' | 'found' | 'adoption'
+    petType: 'dog' | 'cat' | 'other'
+    name: string                   // Pet name (if known)
+    breed?: string                 // Pet breed
+    color: string                  // Pet color
+    size: 'small' | 'medium' | 'large'
+    description: string            // Detailed description
+    photos: string[]               // Array of photo URLs
+    location: GeoPoint             // Geographic coordinates
+    address: string                // Human-readable address
+    neighborhood: string           // Mar del Plata neighborhood
+    contactName: string            // Contact person name
+    contactPhone: string           // Contact phone number
+    contactWhatsApp: string        // WhatsApp number (same or different)
+    status: 'active' | 'resolved' | 'closed'
+    dateLost?: Timestamp           // When pet was lost (for lost pets)
+    dateFound?: Timestamp          // When pet was found (for found pets)
+    tags: string[]                 // Searchable tags
+    createdAt: Timestamp
+    updatedAt: Timestamp
+    views: number                  // View count
+    featured: boolean              // Featured listing
+  }
+  ```
+
+  ### Example Document
+  
+  ```javascript
+  {
+    id: "pet_xyz789",
+    userId: "abc123xyz",
+    type: "lost",
+    petType: "dog",
+    name: "Bobby",
+    breed: "Golden Retriever",
+    color: "Dorado",
+    size: "large",
+    description: "Perro grande, muy amigable, tiene collar azul",
+    photos: [
+      "https://storage.googleapis.com/mascotas/photos/photo1.jpg",
+      "https://storage.googleapis.com/mascotas/photos/photo2.jpg"
+    ],
+    location: new GeoPoint(-38.0055, -57.5426),
+    address: "Av. Constitución 5600, Mar del Plata",
+    neighborhood: "Barrio Los Pinares",
+    contactName: "María González",
+    contactPhone: "+5492234567890",
+    contactWhatsApp: "+5492234567890",
+    status: "active",
+    dateLost: Timestamp.fromDate(new Date('2026-03-01')),
+    tags: ["golden", "retriever", "dorado", "collar", "azul"],
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+    views: 127,
+    featured: false
+  }
+  ```
+
+  ### Composite Indexes
+  - `type` (ascending) + `status` (ascending) + `createdAt` (descending)
+  - `userId` (ascending) + `createdAt` (descending)
+  - `neighborhood` (ascending) + `type` (ascending) + `createdAt` (descending)
+  - `status` (ascending) + `featured` (descending) + `createdAt` (descending)
+</Accordion>
+
+<Accordion title="Messages Collection">
+  ### Schema Definition
+  
+  ```typescript
+  interface Message {
+    id: string
+    petId: string                  // Related pet report
+    senderId: string               // Message sender UID
+    receiverId: string             // Message receiver UID
+    senderName: string             // Sender display name
+    message: string                // Message content
+    read: boolean                  // Read status
+    createdAt: Timestamp
+    attachments?: string[]         // Optional photo attachments
+  }
+  ```
+
+  ### Example Document
+  
+  ```javascript
+  {
+    id: "msg_abc123",
+    petId: "pet_xyz789",
+    senderId: "user_123",
+    receiverId: "abc123xyz",
+    senderName: "Juan Pérez",
+    message: "Hola, creo que vi a tu perro cerca del Parque San Martín",
+    read: false,
+    createdAt: Timestamp.now(),
+    attachments: []
+  }
+  ```
+
+  ### Composite Indexes
+  - `receiverId` (ascending) + `read` (ascending) + `createdAt` (descending)
+  - `petId` (ascending) + `createdAt` (descending)
+</Accordion>
+
+<Accordion title="Reports Collection">
+  ### Schema Definition
+  
+  ```typescript
+  interface Report {
+    id: string
+    petId: string                  // Reported pet/post
+    reportedBy: string             // User who reported
+    reason: 'spam' | 'inappropriate' | 'duplicate' | 'other'
+    description: string            // Additional details
+    status: 'pending' | 'reviewed' | 'resolved'
+    reviewedBy?: string            // Admin who reviewed
+    resolution?: string            // Resolution notes
+    createdAt: Timestamp
+    reviewedAt?: Timestamp
+  }
+  ```
+
+  ### Example Document
+  
+  ```javascript
+  {
+    id: "report_123",
+    petId: "pet_xyz789",
+    reportedBy: "user_456",
+    reason: "duplicate",
+    description: "Esta publicación es duplicada de otra ya existente",
+    status: "pending",
+    createdAt: Timestamp.now()
+  }
+  ```
+</Accordion>
+
+## CRUD Operations
+
+<Tabs>
+  <Tab title="Create">
+    ```javascript
+    import { collection, addDoc, doc, setDoc, serverTimestamp } from 'firebase/firestore'
+    import { db } from '../config/firebase'
+
+    // Create a new pet report
+    export const createPetReport = async (petData, userId) => {
+      try {
+        const petRef = await addDoc(collection(db, 'pets'), {
+          ...petData,
+          userId,
+          status: 'active',
+          views: 0,
+          featured: false,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        })
+
+        return { success: true, id: petRef.id }
+      } catch (error) {
+        console.error('Error creating pet report:', error)
+        throw error
+      }
+    }
+
+    // Create user document with custom ID
+    export const createUserDocument = async (uid, userData) => {
+      try {
+        await setDoc(doc(db, 'users', uid), {
+          uid,
+          ...userData,
+          createdAt: serverTimestamp()
+        })
+
+        return { success: true }
+      } catch (error) {
+        console.error('Error creating user:', error)
+        throw error
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Read">
+    ```javascript
+    import { doc, getDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore'
+    import { db } from '../config/firebase'
+
+    // Get single pet by ID
+    export const getPetById = async (petId) => {
+      try {
+        const petDoc = await getDoc(doc(db, 'pets', petId))
+        
+        if (petDoc.exists()) {
+          return { id: petDoc.id, ...petDoc.data() }
+        } else {
+          throw new Error('Pet not found')
+        }
+      } catch (error) {
+        console.error('Error fetching pet:', error)
+        throw error
+      }
+    }
+
+    // Query active lost pets in a neighborhood
+    export const getLostPetsInNeighborhood = async (neighborhood) => {
+      try {
+        const q = query(
+          collection(db, 'pets'),
+          where('type', '==', 'lost'),
+          where('status', '==', 'active'),
+          where('neighborhood', '==', neighborhood),
+          orderBy('createdAt', 'desc'),
+          limit(20)
+        )
+
+        const querySnapshot = await getDocs(q)
+        const pets = []
+        
+        querySnapshot.forEach((doc) => {
+          pets.push({ id: doc.id, ...doc.data() })
+        })
+
+        return pets
+      } catch (error) {
+        console.error('Error querying pets:', error)
+        throw error
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Update">
+    ```javascript
+    import { doc, updateDoc, serverTimestamp } from 'firebase/firestore'
+    import { db } from '../config/firebase'
+
+    // Update pet report
+    export const updatePetReport = async (petId, updates) => {
+      try {
+        const petRef = doc(db, 'pets', petId)
+        
+        await updateDoc(petRef, {
+          ...updates,
+          updatedAt: serverTimestamp()
+        })
+
+        return { success: true }
+      } catch (error) {
+        console.error('Error updating pet:', error)
+        throw error
+      }
+    }
+
+    // Mark pet as resolved
+    export const resolvePetReport = async (petId) => {
+      try {
+        await updateDoc(doc(db, 'pets', petId), {
+          status: 'resolved',
+          resolvedAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        })
+
+        return { success: true }
+      } catch (error) {
+        console.error('Error resolving pet report:', error)
+        throw error
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Delete">
+    ```javascript
+    import { doc, deleteDoc } from 'firebase/firestore'
+    import { db } from '../config/firebase'
+
+    // Delete pet report
+    export const deletePetReport = async (petId) => {
+      try {
+        await deleteDoc(doc(db, 'pets', petId))
+        return { success: true }
+      } catch (error) {
+        console.error('Error deleting pet:', error)
+        throw error
+      }
+    }
+
+    // Soft delete (preferred method)
+    export const softDeletePetReport = async (petId) => {
+      try {
+        await updateDoc(doc(db, 'pets', petId), {
+          status: 'closed',
+          deletedAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        })
+
+        return { success: true }
+      } catch (error) {
+        console.error('Error soft deleting pet:', error)
+        throw error
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Real-time Listeners
+
+<CodeGroup>
+  ```javascript useRealtimePets.js
+  import { useEffect, useState } from 'react'
+  import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
+  import { db } from '../config/firebase'
+
+  export const useRealtimePets = (type, status = 'active') => {
+    const [pets, setPets] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+      const q = query(
+        collection(db, 'pets'),
+        where('type', '==', type),
+        where('status', '==', status),
+        orderBy('createdAt', 'desc')
+      )
+
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const petsData = []
+          snapshot.forEach((doc) => {
+            petsData.push({ id: doc.id, ...doc.data() })
+          })
+          setPets(petsData)
+          setLoading(false)
+        },
+        (err) => {
+          console.error('Error in realtime listener:', err)
+          setError(err)
+          setLoading(false)
+        }
+      )
+
+      return () => unsubscribe()
+    }, [type, status])
+
+    return { pets, loading, error }
+  }
+  ```
+
+  ```javascript usePetMessages.js
+  import { useEffect, useState } from 'react'
+  import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
+  import { db } from '../config/firebase'
+
+  export const usePetMessages = (petId) => {
+    const [messages, setMessages] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+      if (!petId) return
+
+      const q = query(
+        collection(db, 'messages'),
+        where('petId', '==', petId),
+        orderBy('createdAt', 'asc')
+      )
+
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const msgs = []
+        snapshot.forEach((doc) => {
+          msgs.push({ id: doc.id, ...doc.data() })
+        })
+        setMessages(msgs)
+        setLoading(false)
+      })
+
+      return () => unsubscribe()
+    }, [petId])
+
+    return { messages, loading }
+  }
+  ```
+</CodeGroup>
+
+## Geolocation Queries
+
+<Note>
+  Firestore doesn't support radius queries natively. Use the geofire-common library for geospatial queries.
+</Note>
+
+```javascript
+import { collection, query, where, orderBy, startAt, endAt, getDocs } from 'firebase/firestore'
+import { geohashQueryBounds, distanceBetween } from 'geofire-common'
+import { db } from '../config/firebase'
+
+// Find pets within radius (in kilometers)
+export const findPetsNearby = async (lat, lng, radiusInKm) => {
+  const center = [lat, lng]
+  const bounds = geohashQueryBounds(center, radiusInKm * 1000) // Convert to meters
+  
+  const promises = []
+  
+  for (const b of bounds) {
+    const q = query(
+      collection(db, 'pets'),
+      orderBy('geohash'),
+      startAt(b[0]),
+      endAt(b[1])
+    )
+    
+    promises.push(getDocs(q))
+  }
+  
+  const snapshots = await Promise.all(promises)
+  const matchingDocs = []
+  
+  for (const snap of snapshots) {
+    for (const doc of snap.docs) {
+      const data = doc.data()
+      const lat = data.location.latitude
+      const lng = data.location.longitude
+      
+      // Filter by actual distance
+      const distanceInKm = distanceBetween([lat, lng], center)
+      
+      if (distanceInKm <= radiusInKm) {
+        matchingDocs.push({
+          id: doc.id,
+          ...data,
+          distance: distanceInKm
+        })
+      }
+    }
+  }
+  
+  // Sort by distance
+  matchingDocs.sort((a, b) => a.distance - b.distance)
+  
+  return matchingDocs
+}
+```
+
+## Firestore Security Rules
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Pets collection
+    match /pets/{petId} {
+      allow read: if true; // Public read access
+      allow create: if isAuthenticated() && 
+                      request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && 
+                      (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAuthenticated() && 
+                      (resource.data.userId == request.auth.uid || isAdmin());
+    }
+    
+    // Messages collection
+    match /messages/{messageId} {
+      allow read: if isAuthenticated() && 
+                    (resource.data.senderId == request.auth.uid || 
+                     resource.data.receiverId == request.auth.uid);
+      allow create: if isAuthenticated() && 
+                      request.resource.data.senderId == request.auth.uid;
+      allow update: if isAuthenticated() && 
+                      resource.data.receiverId == request.auth.uid; // Only for marking as read
+      allow delete: if isAdmin();
+    }
+    
+    // Reports collection
+    match /reports/{reportId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}
+```
+
+<Warning>
+  Always test security rules thoroughly before deploying to production. Use the Firebase Console Rules Playground to simulate requests.
+</Warning>
+
+## Pagination
+
+<CodeGroup>
+  ```javascript usePagination.js
+  import { useState } from 'react'
+  import { collection, query, orderBy, limit, startAfter, getDocs } from 'firebase/firestore'
+  import { db } from '../config/firebase'
+
+  export const usePagination = (collectionName, pageSize = 10) => {
+    const [documents, setDocuments] = useState([])
+    const [lastDoc, setLastDoc] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [hasMore, setHasMore] = useState(true)
+
+    const loadMore = async () => {
+      if (loading || !hasMore) return
+
+      setLoading(true)
+
+      try {
+        let q = query(
+          collection(db, collectionName),
+          orderBy('createdAt', 'desc'),
+          limit(pageSize)
+        )
+
+        if (lastDoc) {
+          q = query(q, startAfter(lastDoc))
+        }
+
+        const snapshot = await getDocs(q)
+        
+        if (snapshot.empty) {
+          setHasMore(false)
+          setLoading(false)
+          return
+        }
+
+        const newDocs = []
+        snapshot.forEach((doc) => {
+          newDocs.push({ id: doc.id, ...doc.data() })
+        })
+
+        setDocuments((prev) => [...prev, ...newDocs])
+        setLastDoc(snapshot.docs[snapshot.docs.length - 1])
+        setHasMore(snapshot.docs.length === pageSize)
+      } catch (error) {
+        console.error('Pagination error:', error)
+      }
+
+      setLoading(false)
+    }
+
+    const reset = () => {
+      setDocuments([])
+      setLastDoc(null)
+      setHasMore(true)
+    }
+
+    return { documents, loading, hasMore, loadMore, reset }
+  }
+  ```
+</CodeGroup>
+
+## Data Migration
+
+<Tip>
+  Use Firebase Admin SDK for batch operations and data migrations to avoid client-side rate limits.
+</Tip>
+
+```javascript
+// Node.js script for data migration
+const admin = require('firebase-admin')
+const serviceAccount = require('./serviceAccountKey.json')
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+})
+
+const db = admin.firestore()
+
+// Batch update example
+async function addGeohashToPets() {
+  const { geohashForLocation } = require('geofire-common')
+  const petsRef = db.collection('pets')
+  const snapshot = await petsRef.get()
+  
+  const batch = db.batch()
+  let count = 0
+  
+  snapshot.forEach((doc) => {
+    const data = doc.data()
+    if (data.location) {
+      const geohash = geohashForLocation([
+        data.location.latitude,
+        data.location.longitude
+      ])
+      
+      batch.update(doc.ref, { geohash })
+      count++
+      
+      // Firestore batch limit is 500
+      if (count === 500) {
+        batch.commit()
+        count = 0
+      }
+    }
+  })
+  
+  if (count > 0) {
+    await batch.commit()
+  }
+  
+  console.log('Migration complete')
+}
+```
+
+## Performance Optimization
+
+<Steps>
+  <Step title="Use Composite Indexes">
+    Create composite indexes for frequently used query combinations in Firebase Console
+  </Step>
+  
+  <Step title="Implement Pagination">
+    Always use pagination for large result sets to reduce read costs and improve performance
+  </Step>
+  
+  <Step title="Cache Data Locally">
+    Enable offline persistence to reduce database reads
+    
+    ```javascript
+    import { enableIndexedDbPersistence } from 'firebase/firestore'
+    import { db } from './firebase'
+
+    enableIndexedDbPersistence(db).catch((err) => {
+      if (err.code === 'failed-precondition') {
+        console.log('Persistence failed: multiple tabs open')
+      } else if (err.code === 'unimplemented') {
+        console.log('Persistence not supported')
+      }
+    })
+    ```
+  </Step>
+  
+  <Step title="Denormalize Data">
+    Duplicate frequently accessed data to avoid multiple reads
+  </Step>
+</Steps>
+
+<Info>
+  Monitor database usage in Firebase Console to identify expensive queries and optimize accordingly.
+</Info>

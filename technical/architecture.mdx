@@ -1,0 +1,281 @@
+---
+title: 'System Architecture'
+description: 'Technical overview of the Mascotas platform architecture'
+icon: 'sitemap'
+---
+
+## Overview
+
+Mascotas is built as a modern, scalable SaaS platform using React and Firebase, designed to help reunite lost pets with their owners in Mar del Plata.
+
+<CardGroup cols={2}>
+  <Card title="Frontend" icon="react" color="#FF9826">
+    React 18 + Vite for blazing-fast development and optimized production builds
+  </Card>
+  <Card title="Backend" icon="database" color="#FF9826">
+    Firebase Authentication and Firestore for serverless infrastructure
+  </Card>
+  <Card title="Maps" icon="map" color="#FF9826">
+    Google Maps API for location-based pet reporting and searching
+  </Card>
+  <Card title="Communication" icon="message" color="#FF9826">
+    WhatsApp Business API integration for instant contact
+  </Card>
+</CardGroup>
+
+## Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Client Layer                          │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │         React 18 + Vite Application                   │  │
+│  │  • React Router for navigation                        │  │
+│  │  • Context API for state management                   │  │
+│  │  • Tailwind CSS for styling                           │  │
+│  └──────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     Service Layer                            │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │   Firebase   │  │ Google Maps  │  │  WhatsApp    │     │
+│  │     Auth     │  │     API      │  │     API      │     │
+│  └──────────────┘  └──────────────┘  └──────────────┘     │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      Data Layer                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │              Firestore Database                       │  │
+│  │  Collections: pets, users, reports, messages          │  │
+│  └──────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Core Technologies
+
+<Accordion title="Frontend Stack">
+  ### React 18
+  - Concurrent rendering for improved performance
+  - Automatic batching for state updates
+  - React Hooks for component logic
+  - Lazy loading for code splitting
+
+  ### Vite
+  - Lightning-fast HMR (Hot Module Replacement)
+  - Optimized build process with Rollup
+  - Native ES modules support
+  - Plugin ecosystem for extended functionality
+
+  ### Tailwind CSS
+  - Utility-first CSS framework
+  - Custom brand color configuration (#FF9826)
+  - Responsive design system
+  - JIT (Just-In-Time) compilation
+
+  ### React Router v6
+  - Declarative routing
+  - Nested routes for complex layouts
+  - Protected routes for authentication
+  - Programmatic navigation
+</Accordion>
+
+<Accordion title="Backend Services">
+  ### Firebase Authentication
+  - Email/password authentication
+  - Google OAuth integration
+  - Facebook OAuth integration
+  - Session management with JWT tokens
+  - Role-based access control
+
+  ### Firestore Database
+  - NoSQL document database
+  - Real-time data synchronization
+  - Offline persistence support
+  - Complex queries with composite indexes
+  - Security rules for data protection
+
+  ### Firebase Storage
+  - Pet photo uploads
+  - Image optimization and resizing
+  - Secure file access with signed URLs
+  - CDN distribution for fast loading
+</Accordion>
+
+<Accordion title="External APIs">
+  ### Google Maps JavaScript API
+  - Interactive map display
+  - Geocoding for address conversion
+  - Places Autocomplete for location search
+  - Radius-based pet searching
+  - Custom markers for pet locations
+
+  ### WhatsApp Business API
+  - Click-to-chat functionality
+  - Pre-filled message templates
+  - Deep linking support
+  - Contact verification
+</Accordion>
+
+## Application Flow
+
+<Steps>
+  <Step title="User Authentication">
+    Users register or log in using Firebase Authentication. Session tokens are stored in localStorage and validated on each request.
+  </Step>
+  
+  <Step title="Pet Report Creation">
+    Users create lost/found pet reports with photos, descriptions, and location data from Google Maps API.
+  </Step>
+  
+  <Step title="Data Storage">
+    Report data is stored in Firestore with geolocation coordinates for radius-based searching.
+  </Step>
+  
+  <Step title="Real-time Updates">
+    Firestore listeners provide real-time updates to the UI when new reports are added or existing reports are updated.
+  </Step>
+  
+  <Step title="Contact Initiation">
+    Users click WhatsApp buttons to initiate contact with pet owners/finders through WhatsApp Business API.
+  </Step>
+</Steps>
+
+## Performance Optimizations
+
+<Note>
+  The platform implements several performance optimizations:
+  - Code splitting with React.lazy() and Suspense
+  - Image lazy loading and WebP format support
+  - Firestore query pagination for large datasets
+  - Service worker for offline functionality
+  - CDN caching for static assets
+</Note>
+
+## Security Architecture
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock">
+    Firebase Auth handles all authentication with secure JWT tokens and automatic token refresh
+  </Card>
+  <Card title="Authorization" icon="shield">
+    Firestore Security Rules enforce data access permissions based on user roles and ownership
+  </Card>
+  <Card title="Data Validation" icon="check">
+    Client-side and server-side validation ensures data integrity
+  </Card>
+  <Card title="API Security" icon="key">
+    API keys are environment-scoped and domain-restricted
+  </Card>
+</CardGroup>
+
+## Deployment Architecture
+
+```javascript
+// vite.config.js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'firebase-vendor': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          'maps-vendor': ['@react-google-maps/api']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  },
+  optimizeDeps: {
+    include: ['firebase/app', 'firebase/auth', 'firebase/firestore']
+  }
+})
+```
+
+<Warning>
+  Ensure all Firebase API keys are properly configured in environment variables and never committed to version control.
+</Warning>
+
+## Scalability Considerations
+
+<Accordion title="Database Scalability">
+  Firestore automatically scales to handle increased load. Key considerations:
+  - Use composite indexes for complex queries
+  - Implement pagination to limit document reads
+  - Denormalize data where appropriate to reduce reads
+  - Monitor usage in Firebase Console
+</Accordion>
+
+<Accordion title="Frontend Scalability">
+  - Implement virtual scrolling for large lists
+  - Use React.memo() for expensive component renders
+  - Lazy load routes and heavy components
+  - Optimize images with proper sizing and formats
+</Accordion>
+
+## Monitoring and Analytics
+
+<Info>
+  The platform uses Firebase Analytics and Performance Monitoring to track:
+  - User engagement metrics
+  - Page load performance
+  - API response times
+  - Error tracking and crash reporting
+</Info>
+
+## Development Workflow
+
+<Tabs>
+  <Tab title="Local Development">
+    ```bash
+    # Install dependencies
+    npm install
+
+    # Start development server
+    npm run dev
+
+    # Run tests
+    npm test
+
+    # Build for production
+    npm run build
+    ```
+  </Tab>
+  
+  <Tab title="Environment Setup">
+    ```bash
+    # .env.local
+    VITE_FIREBASE_API_KEY=your_api_key
+    VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+    VITE_FIREBASE_PROJECT_ID=your_project_id
+    VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+    VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+    VITE_FIREBASE_APP_ID=your_app_id
+    VITE_GOOGLE_MAPS_API_KEY=your_maps_key
+    ```
+  </Tab>
+  
+  <Tab title="Deployment">
+    ```bash
+    # Build production bundle
+    npm run build
+
+    # Preview production build
+    npm run preview
+
+    # Deploy to Firebase Hosting
+    firebase deploy
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
+  Use Firebase Emulator Suite for local development to avoid using production resources and speed up development.
+</Tip>

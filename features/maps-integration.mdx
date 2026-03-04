@@ -1,0 +1,436 @@
+---
+title: 'Maps Integration'
+description: 'Location-based features powered by Google Maps for tracking and finding pets'
+icon: 'map'
+---
+
+Mascotas integrates Google Maps throughout the platform to provide powerful location-based features for lost pets, found pets, and adoptions. Visual mapping helps the community quickly identify and respond to pets in need across Mar del Plata.
+
+## Core Map Features
+
+<CardGroup cols={2}>
+  <Card title="Interactive Lost Pet Map" icon="map-pin">
+    View all active lost pet reports on a real-time map. Filter by species, date, and search radius to find pets near you.
+  </Card>
+
+  <Card title="Found Pet Locations" icon="location-dot">
+    See where pets have been found with precise GPS coordinates. Match locations with lost pet reports in the same area.
+  </Card>
+
+  <Card title="Sighting Timeline" icon="route">
+    Track multiple sightings of the same pet over time. The map displays movement patterns to predict where the pet might be heading.
+  </Card>
+
+  <Card title="Search Radius Visualization" icon="circle">
+    Lost pet reports show customizable search radius circles, indicating how far alerts will spread across the community.
+  </Card>
+
+  <Card title="Adoption Proximity" icon="house">
+    Find adoptable pets near your location. Filter by distance to see pets available within your preferred travel range.
+  </Card>
+
+  <Card title="Heat Maps" icon="heat">
+    View concentration areas where pets are frequently lost or found, helping identify high-risk zones and common patterns.
+  </Card>
+</CardGroup>
+
+## For Lost Pets
+
+<Steps>
+  <Step title="Pin Last Known Location">
+    When creating a lost pet report:
+    - Search for the address or use current location
+    - Drop a pin exactly where your pet was last seen
+    - Add location notes ("near the blue gate", "by the dog park entrance")
+    - The system records GPS coordinates and timestamp
+  </Step>
+
+  <Step title="Set Your Search Radius">
+    Define the alert zone:
+    - Start with 1-5km depending on your area type
+    - Urban areas: smaller radius (1-2km)
+    - Suburban: medium radius (3-5km)
+    - Rural: larger radius (5-10km+)
+    - Watch the circle expand on the map as you adjust
+    - All users in this zone receive notifications
+  </Step>
+
+  <Step title="View on Public Map">
+    Your lost pet appears on the community map:
+    - Pin shows pet species icon and photo thumbnail
+    - Click to view full report details
+    - Search radius circle shows coverage area
+    - Color coding indicates how recently posted (red = within 24hrs)
+  </Step>
+
+  <Step title="Track Sightings">
+    As people report sightings:
+    - New pins appear on your report's map
+    - Lines connect sightings chronologically
+    - Time stamps show when each sighting occurred
+    - Direction and movement patterns emerge
+    - Update your search focus based on patterns
+  </Step>
+</Steps>
+
+<Tip>
+  **Expanding Search**: The platform can automatically expand your search radius by 50% after 48 hours if your pet isn't found. This ensures wider coverage as pets may travel farther over time.
+</Tip>
+
+## For Found Pets
+
+<Steps>
+  <Step title="Mark Exact Found Location">
+    When reporting a found pet:
+    - Use "Current Location" if you're still at the spot
+    - Or search and pin the precise location
+    - Add landmarks visible in the area
+    - Note if the pet was moving and in which direction
+  </Step>
+
+  <Step title="View Nearby Lost Reports">
+    The map automatically shows:
+    - Active lost pet reports within 5km
+    - Visual comparison of found location vs. lost locations
+    - How many days since each pet was reported lost
+    - Direct links to potentially matching reports
+  </Step>
+
+  <Step title="Receive Match Alerts">
+    The system compares locations:
+    - Lost pet owners within radius get notified
+    - Your found report appears on their map
+    - Distance calculation shows proximity
+    - Both parties can message through the platform
+  </Step>
+</Steps>
+
+## Sighting Reports
+
+### For the Community
+
+Spotted a lost pet? Add a sighting:
+
+1. Find the lost pet report on the map or search
+2. Click "Report Sighting"
+3. Drop a pin where you saw the pet
+4. Add date/time and any relevant details
+5. Optionally upload a photo if you captured one
+6. The owner receives immediate notification
+
+<Info>
+  **Sighting Impact**: Sighting reports increase successful reunions by 45%. Even if you can't capture the pet, reporting where you saw them helps owners focus their search.
+</Info>
+
+### Sighting Map Features
+
+**On Your Lost Pet Report:**
+- Original "last seen" location marked prominently
+- Numbered sighting pins in chronological order
+- Lines connecting sightings show travel path
+- Hover over pins to see details and time
+- Click pins to contact the person who reported the sighting
+
+**Movement Analysis:**
+- The map highlights likely search areas
+- Algorithm suggests where to focus based on patterns
+- Shows if pet is moving in a consistent direction
+- Identifies potential "home base" if pet returns to areas
+
+## Adoption Location Features
+
+### Finding Nearby Adoptable Pets
+
+<Steps>
+  <Step title="Set Your Location">
+    On the adoption page:
+    - Enter your address or use current location
+    - Choose distance radius (5km, 10km, 20km, 50km)
+    - Map shows all adoptable pets within range
+  </Step>
+
+  <Step title="Visual Browse">
+    Explore the map:
+    - Each pin represents an adoptable pet
+    - Pins show pet type icon and species
+    - Clusters show multiple pets in same area
+    - Click to view quick preview with photo
+  </Step>
+
+  <Step title="Calculate Travel Time">
+    The map provides:
+    - Distance in kilometers from your location
+    - Estimated driving time
+    - Directions link to Google Maps for navigation
+    - Helps plan meet-and-greet visits
+  </Step>
+</Steps>
+
+### For Listing Owners
+
+When listing a pet for adoption:
+- Your pet appears on the adoption map
+- Privacy options: show exact address or general area only
+- Can specify "exact location shared after application approval"
+- Helps adopters understand accessibility
+
+## Map Privacy Settings
+
+<Warning>
+  **Protect Your Privacy**: You control how precise your location appears to others. Consider your safety and privacy preferences when setting visibility.
+</Warning>
+
+### Location Visibility Options
+
+**For Lost Pets:**
+- **Exact Location**: Pin shows precise GPS coordinates (recommended for effective searching)
+- **Approximate Area**: Pin shows general neighborhood (within 500m)
+- **Hide from Public Map**: Report only visible to matches and direct shares
+
+**For Found Pets:**
+- **Exact Location**: Shows where pet was found (helps verify matches)
+- **General Area**: Shows neighborhood only
+- **Current Location**: Optional separate field for where pet is being kept (can hide until ownership verified)
+
+**For Adoption Listings:**
+- **Neighborhood Only**: Shows general area, exact address shared after approval
+- **City Level**: Only shows Mar del Plata, specific location in messages
+- **Custom Radius**: Show location within X meters
+
+### Your Home Address Protection
+
+- Never display your exact home address publicly without consent
+- Use messaging to share precise pickup locations
+- Meet-and-greet locations can be parks or public spaces
+- Home visits require mutual agreement and verification
+
+## Map Filters and Layers
+
+### Available Filters
+
+**Species Filter:**
+- Dogs only
+- Cats only
+- Other pets
+- All species
+
+**Time Filter:**
+- Last 24 hours
+- Last 7 days
+- Last 30 days
+- All active reports
+
+**Status Filter:**
+- Active lost pets
+- Recent found pets
+- Available for adoption
+- Recent sightings
+
+**Distance Filter:**
+- Within 1km
+- Within 5km
+- Within 10km
+- Within 25km
+- All of Mar del Plata
+
+### Map Layers
+
+<Accordion title="Lost Pets Layer">
+  Shows all active lost pet reports with:
+  - Color-coded pins by species (blue = dogs, orange = cats, green = other)
+  - Search radius circles
+  - "Hot" vs "cold" indicators based on recency
+  - Quick view popup with photo and essential details
+  - Direct link to full report
+</Accordion>
+
+<Accordion title="Found Pets Layer">
+  Displays found pet locations with:
+  - Different icon style from lost pets (star shape)
+  - Purple color coding
+  - Info about where pet is currently kept
+  - Connection lines to nearby lost pet reports
+  - Days since found counter
+</Accordion>
+
+<Accordion title="Sightings Layer">
+  Overlay showing:
+  - Individual sighting reports
+  - Which lost pet each sighting relates to
+  - Chronological numbering
+  - Photo thumbnails if available
+  - Reporter contact option
+</Accordion>
+
+<Accordion title="Adoption Layer">
+  Features adoptable pets with:
+  - Heart-shaped pins
+  - Photo preview on hover
+  - Age and size indicators
+  - Distance from your location
+  - "New" badge for recently listed pets
+</Accordion>
+
+<Accordion title="Heat Map Layer">
+  Analytical view showing:
+  - Areas with high concentration of lost pets
+  - Frequent found pet locations
+  - Helps identify dangerous zones (busy roads, gaps in fences)
+  - Community awareness for prevention
+  - Historical data over time
+</Accordion>
+
+## Mobile Map Features
+
+### On-the-Go Functionality
+
+**GPS Integration:**
+- Use current location button for instant positioning
+- Track your position while searching for a lost pet
+- Real-time distance updates to sighting locations
+- Turn-by-turn navigation to meet-and-greet locations
+
+**Quick Actions:**
+- Long-press to drop a pin
+- Tap pin for quick report view
+- Swipe to switch between layers
+- Shake phone to refresh map data
+
+**Offline Mode:**
+- Downloaded map areas available offline
+- Report drafts save with location pins
+- Syncs when connection restored
+
+<Note>
+  **Battery Saver**: Extended map usage can drain battery. Enable battery saver mode in settings to reduce GPS frequency while still receiving location-based notifications.
+</Note>
+
+## Location-Based Notifications
+
+### How Proximity Alerts Work
+
+**You Receive Alerts When:**
+- A pet is reported lost within your notification radius
+- A pet is found near where you reported a lost pet
+- Someone reports a sighting in your search area
+- An adoptable pet matching your criteria is listed nearby
+
+**Notification Radius Settings:**
+- Default: 5km from your saved location(s)
+- Customizable: 1km to 25km
+- Multiple locations: home, work, frequent areas
+- Temporary locations: when traveling
+
+**Alert Frequency:**
+- Immediate: real-time push notifications
+- Daily digest: once per day summary
+- Weekly summary: for lower urgency
+- Pause temporarily when needed
+
+## Frequently Asked Questions
+
+<Accordion title="How accurate is the location tracking?">
+  Location accuracy depends on the method used:
+  - **GPS on mobile**: Accurate within 5-10 meters
+  - **Address search**: Pinpoints specific address
+  - **Dropped pin**: Exact spot selected on map
+  - **IP address**: General area only (not recommended for reports)
+  
+  For best results, use GPS on mobile when at the actual location, or carefully search and pin the exact address.
+</Accordion>
+
+<Accordion title="Can I search multiple areas simultaneously?">
+  Yes! You can:
+  - Save multiple locations in your profile (home, work, family members' homes)
+  - Receive notifications for all saved locations
+  - Switch between locations using the map
+  - Set different notification radii for each location
+  
+  This is helpful if your pet went missing while visiting somewhere, or if you want to help find pets in multiple neighborhoods.
+</Accordion>
+
+<Accordion title="What if I don't know the exact location?">
+  If you're unsure of the precise spot:
+  - Search for a nearby landmark or intersection
+  - Drop a pin in the general area
+  - In the description, note "approximate location" and provide details
+  - You can always edit and update the location later
+  - Add a wider search radius to compensate for uncertainty
+  
+  Approximate location is better than no location - it still helps the community narrow down the search area.
+</Accordion>
+
+<Accordion title="Does the map work in all of Mar del Plata?">
+  Yes, full Google Maps coverage includes:
+  - All neighborhoods and streets in Mar del Plata
+  - Surrounding areas and suburbs
+  - Parks, beaches, and public spaces
+  - Satellite view for detailed geography
+  
+  However, some very remote areas may have limited satellite imagery detail. The map functionality works everywhere, but imagery quality varies.
+</Accordion>
+
+<Accordion title="Can I export or share map data?">
+  Yes, you can:
+  - Share a specific report's map view via link
+  - Generate a poster with QR code linking to your map
+  - Export sighting coordinates to a file
+  - Screenshot the map for social media sharing
+  - Send map view to helpers coordinating the search
+  
+  Use the "Share" button on any map view to access these options.
+</Accordion>
+
+<Accordion title="How often does the map update?">
+  The map updates in real-time:
+  - New reports appear within seconds
+  - Sighting additions show immediately
+  - Status changes (found, adopted) reflected instantly
+  - Layer filters apply immediately when toggled
+  
+  If you're not seeing expected updates, try refreshing the page or checking your filter settings.
+</Accordion>
+
+## Best Practices
+
+<Tip>
+  **Verify Before Traveling**: Before driving to a sighting location or meet-and-greet, verify through platform messaging that the pet is still in the area and the meeting is confirmed.
+</Tip>
+
+### For Lost Pet Searches
+
+1. **Start with last known location** and search outward in expanding circles
+2. **Check the sighting map frequently** to adjust your search direction
+3. **Use satellite view** to identify hiding spots like garages, sheds, or dense vegetation
+4. **Coordinate with others** by sharing your map view and dividing search zones
+5. **Report your own sightings** as you search to track covered areas
+
+### For Community Helpers
+
+1. **Enable notifications** for your area to help quickly
+2. **Check the map daily** to see active cases nearby
+3. **Report any pet sightings** even if you're not sure it matches
+4. **Share reports** from your neighborhood on social media
+5. **Offer to help search** organized areas on the map
+
+## Technical Details
+
+### Map Performance
+
+- Optimized clustering for areas with many reports
+- Lazy loading for smooth performance with 1000+ markers
+- Caching of map tiles for faster repeat viewing
+- Low-bandwidth mode for slower connections
+
+### Data Accuracy
+
+- GPS coordinates stored to 6 decimal places (~10cm accuracy)
+- Timestamps in local Argentina timezone
+- Regular validation of address data
+- User-reported corrections reviewed and applied
+
+<Info>
+  **Maps API**: Mascotas uses Google Maps Platform with enhanced features for pet tracking. The integration is optimized specifically for lost and found pet scenarios.
+</Info>
+
+The maps integration is the backbone of Mascotas's location-based features, helping reunite pets with families and connecting adopters with their future companions across Mar del Plata.

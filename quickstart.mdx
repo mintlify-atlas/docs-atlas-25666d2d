@@ -1,80 +1,300 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: 'Quick start guide'
+description: 'Get started with Mascotas in minutes. Create your account, set up your profile, and report your first lost pet or search for found pets.'
+keywords: ['quickstart', 'getting started', 'create account', 'report lost pet', 'find pet']
+icon: 'rocket'
 ---
 
-## Get started in three steps
+## Welcome to Mascotas
 
-Get your documentation site running locally and make your first customization.
+This guide will help you get started with Mascotas, whether you need to report a lost pet, have found a pet, or are looking to adopt. Follow these steps to set up your account and start using the platform.
 
-### Step 1: Set up your local environment
+<Note>
+  Mascotas is designed for the Mar del Plata community. Make sure you're located in or near Mar del Plata to get the most relevant results.
+</Note>
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+## Create your account
+
+<Steps>
+  <Step title="Sign up">
+    Visit the Mascotas platform and click **Sign Up** in the top right corner.
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    You can create an account using:
+    - Email and password
+    - Google account (recommended for faster setup)
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    <Tip>
+      Using Google sign-in allows for quicker account creation and easier password recovery.
+    </Tip>
+  </Step>
 
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+  <Step title="Verify your email">
+    If you signed up with email, check your inbox for a verification email from Mascotas. Click the verification link to activate your account.
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    <Info>
+      The verification link expires after 24 hours. If it expires, you can request a new verification email from the login page.
+    </Info>
+  </Step>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+  <Step title="Complete your profile">
+    After logging in, complete your profile with:
+    
+    - **Full name**: This helps build trust with other users
+    - **Phone number**: Required for WhatsApp notifications
+    - **Location**: Select your neighborhood in Mar del Plata (used for location-based matching)
+    - **Profile photo** (optional): Adds credibility to your reports
+    
+    <Warning>
+      Your phone number is required to receive WhatsApp notifications about potential pet matches. We never share your phone number publicly.
+    </Warning>
+  </Step>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+  <Step title="Set notification preferences">
+    Configure how you want to be notified:
+    
+    - **WhatsApp notifications**: Get instant alerts (recommended)
+    - **Email notifications**: Daily digest or real-time alerts
+    - **Notification radius**: Set how far from your location you want to receive alerts (1-20 km)
+    - **Pet types**: Choose which types of pets you want notifications for (dogs, cats, birds, etc.)
+  </Step>
+</Steps>
 
-### Step 3: Go live
+## Your first action
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+Choose the path that matches your situation:
+
+<CardGroup cols={2}>
+  <Card title="Report a lost pet" icon="magnifying-glass" href="#report-a-lost-pet">
+    Your pet is missing and you need help finding them
+  </Card>
+  <Card title="Report a found pet" icon="paw" href="#report-a-found-pet">
+    You found a pet and want to help reunite them with their owner
+  </Card>
+  <Card title="Search for matches" icon="map-location-dot" href="#search-for-matches">
+    Browse existing reports to find potential matches
+  </Card>
+  <Card title="Browse adoptions" icon="heart" href="/guide/listing-adoption">
+    Find a pet to adopt or list a pet for adoption
+  </Card>
+</CardGroup>
+
+### Report a lost pet
+
+If your pet is missing, create a lost pet report immediately to alert the community.
+
+<Steps>
+  <Step title="Click 'Report Lost Pet'">
+    From the dashboard, click the **Report Lost Pet** button or navigate to **Reports** > **Lost Pets** > **New Report**.
+  </Step>
+
+  <Step title="Add pet details">
+    Fill in the following information:
+    
+    - **Pet name**: Your pet's name
+    - **Pet type**: Dog, cat, bird, rabbit, etc.
+    - **Breed**: Specific breed or mix
+    - **Size**: Small, medium, large, extra large
+    - **Color and markings**: Detailed description of fur color, patterns, and unique markings
+    - **Age**: Approximate age
+    - **Gender**: Male, female, or unknown
+    - **Photos**: Upload 2-5 clear photos (required)
+    
+    <Tip>
+      Include photos from multiple angles. Close-ups of unique markings or distinctive features help with identification.
+    </Tip>
+  </Step>
+
+  <Step title="Specify location">
+    - **Last seen location**: Click on the map or enter the address where your pet was last seen
+    - **Date and time**: When you last saw your pet
+    - **Search radius**: How far from the last seen location you want to search (default: 5 km)
+    
+    <Info>
+      The more precise the location, the better. If your pet went missing during a walk, mark the exact spot where they ran off.
+    </Info>
+  </Step>
+
+  <Step title="Add additional information">
+    Include any relevant details:
+    
+    - Medical conditions or medications
+    - Collar information (color, tags, ID number)
+    - Microchip number (if applicable)
+    - Behavioral traits (shy, friendly, scared of loud noises, etc.)
+    - Reward information (optional)
+    
+    <Warning>
+      Never include sensitive personal information like your home address in the public description. Use the platform's messaging system for private communication.
+    </Warning>
+  </Step>
+
+  <Step title="Review and publish">
+    Review all information for accuracy, then click **Publish Report**. Your report will be:
+    
+    - Visible on the lost pets map
+    - Searchable by other users
+    - Matched against found pet reports
+    - Sent to users who have enabled notifications in your area
+    
+    You'll receive a confirmation email with a link to manage your report.
+  </Step>
+</Steps>
+
+<Note>
+  After publishing, you can edit your report at any time from your dashboard. If your pet is found, mark the report as **Resolved** to notify the community.
+</Note>
+
+### Report a found pet
+
+If you've found a pet, create a found pet report to help reunite them with their owner.
+
+<Steps>
+  <Step title="Click 'Report Found Pet'">
+    From the dashboard, click **Report Found Pet** or navigate to **Reports** > **Found Pets** > **New Report**.
+  </Step>
+
+  <Step title="Document the pet">
+    Provide as much detail as possible:
+    
+    - **Pet type and breed**: Best guess if you're not sure
+    - **Physical description**: Size, color, markings, approximate age
+    - **Photos**: Upload clear photos showing the pet's face and any distinctive features
+    - **Condition**: Note if the pet appears injured, scared, well-groomed, or wearing a collar
+    
+    <Tip>
+      Take photos of any collar tags, even if you can't read them clearly. Owners may recognize their pet's collar.
+    </Tip>
+  </Step>
+
+  <Step title="Specify where you found them">
+    - **Found location**: Mark the exact location on the map
+    - **Date and time**: When you found the pet
+    - **Current location**: Where the pet is now (if different from where you found them)
+    
+    <Info>
+      If you've taken the pet to a shelter or vet, include that information in the current location field.
+    </Info>
+  </Step>
+
+  <Step title="Add your contact method">
+    Choose how people can reach you:
+    
+    - In-app messaging (always available)
+    - WhatsApp (recommended for faster response)
+    - Phone call
+    
+    <Warning>
+      Be cautious when meeting strangers. Always meet in public places and consider bringing a friend. Ask potential owners to describe distinctive features before meeting.
+    </Warning>
+  </Step>
+
+  <Step title="Publish the report">
+    Click **Publish Report**. The system will:
+    
+    - Automatically match your report against lost pet reports
+    - Notify potential owners who match the description and location
+    - Display the found pet on the map
+    
+    You'll receive notifications when someone reaches out about the pet.
+  </Step>
+</Steps>
+
+### Search for matches
+
+Browse existing reports to find potential matches for lost or found pets.
+
+<Steps>
+  <Step title="Use the map view">
+    Navigate to **Map** to see all lost and found pet reports in Mar del Plata.
+    
+    - **Filter by type**: Lost pets, found pets, or adoption listings
+    - **Filter by species**: Dogs, cats, birds, etc.
+    - **Adjust radius**: Zoom in/out to focus on specific areas
+  </Step>
+
+  <Step title="Use the search function">
+    Go to **Search** and use filters:
+    
+    - Pet type and breed
+    - Color and size
+    - Date range (when lost/found)
+    - Location (neighborhood or specific area)
+    
+    <Tip>
+      Start with broad search criteria, then narrow down. A pet's appearance may be described differently by different people.
+    </Tip>
+  </Step>
+
+  <Step title="Review potential matches">
+    Click on any report to view full details:
+    
+    - Compare photos carefully
+    - Check location and dates
+    - Read the full description
+    - Look for distinctive markings or features
+  </Step>
+
+  <Step title="Contact the poster">
+    If you find a potential match:
+    
+    1. Click **Contact Owner** or **Contact Finder**
+    2. Send a message through the platform
+    3. Describe why you think it's a match
+    4. Ask verification questions (e.g., "Does your dog have a scar on the left ear?")
+    
+    See our full guide: [Contact owners and finders](/guide/contact-owners)
+  </Step>
+</Steps>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
+Now that you're set up, explore these resources:
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Lost pets feature" icon="magnifying-glass" href="/features/lost-pets">
+    Learn about advanced lost pet features and best practices
+  </Card>
+  <Card title="Found pets feature" icon="paw" href="/features/found-pets">
+    Understand how the found pet matching system works
+  </Card>
+  <Card title="Maps integration" icon="map-location-dot" href="/features/maps-integration">
+    Get the most out of the location-based search and notifications
+  </Card>
+  <Card title="Notifications" icon="bell" href="/features/notifications">
+    Customize your notification preferences for better matches
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+## Common questions
+
+<AccordionGroup>
+  <Accordion title="How quickly will I get notifications about potential matches?">
+    Notifications are sent in real-time when a new report matches your criteria. WhatsApp notifications are typically delivered within seconds, while email notifications may take a few minutes.
+  </Accordion>
+
+  <Accordion title="Can I report a pet on behalf of someone else?">
+    Yes, but include the actual owner's contact information in the report so potential finders can reach them directly. Make sure you have their permission first.
+  </Accordion>
+
+  <Accordion title="What if I find my lost pet outside the platform?">
+    Great news! Log in to your dashboard, find your lost pet report, and click **Mark as Resolved**. This removes your report from active searches and notifies anyone who may have been following your case.
+  </Accordion>
+
+  <Accordion title="Is there a cost to use Mascotas?">
+    No, Mascotas is completely free to use. Our mission is to help every pet in Mar del Plata find their way home.
+  </Accordion>
+
+  <Accordion title="How do I verify someone claiming to have found my pet?">
+    Always ask specific questions that only the true owner would know, such as distinctive markings, behavioral quirks, or medical conditions. Meet in a public place and bring a friend if possible.
+  </Accordion>
+</AccordionGroup>
+
+## Need more help?
+
+<Card title="View all user guides" icon="book" href="/guide/creating-account">
+  Access detailed guides for every feature of the platform
+</Card>
+
+<Info>
+  If you encounter any issues or have questions, visit our [GitHub repository](https://github.com/WonuSama/mascotas) to report issues or ask questions.
+</Info>
