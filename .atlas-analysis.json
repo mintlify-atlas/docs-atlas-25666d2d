@@ -1,0 +1,63 @@
+{
+  "projectType": "saas",
+  "projectName": "Mascotas",
+  "projectDescription": "Platform for reporting lost pets, found pets, and pet adoption in Mar del Plata.",
+  "theme": "almond",
+  "primaryColor": "#FF9826",
+  "lightColor": "#FFE4BF",
+  "darkColor": "#CC6A00",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "introduction",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Features",
+        "pages": [
+          "features/lost-pets",
+          "features/found-pets",
+          "features/adoption",
+          "features/maps-integration",
+          "features/notifications"
+        ]
+      },
+      {
+        "group": "User Guide",
+        "pages": [
+          "guide/creating-account",
+          "guide/reporting-lost-pet",
+          "guide/reporting-found-pet",
+          "guide/listing-adoption",
+          "guide/contact-owners"
+        ]
+      },
+      {
+        "group": "Technical",
+        "pages": [
+          "technical/architecture",
+          "technical/authentication",
+          "technical/database"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Report lost pets with location tracking",
+    "Report found pets and match with lost reports",
+    "List pets for adoption",
+    "Google Maps integration for location visualization",
+    "WhatsApp integration for direct owner contact",
+    "Firebase authentication and real-time database",
+    "Responsive design with Tailwind CSS"
+  ],
+  "publicApiSurface": [
+    "Firebase Authentication (email/password, social logins)",
+    "Firestore collections: pets, users, reports",
+    "Google Maps Places API integration",
+    "WhatsApp Business API integration"
+  ]
+}
